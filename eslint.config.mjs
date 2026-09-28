@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored Motion UI registry sources (owned by `npx shadcn add @motion/*`,
+    // rewritten on every add) and the generated motion theme. Do not lint/edit.
+    "components/motion-ui/**",
+    "motion.theme.ts",
   ]),
 ]);
 
