@@ -5,11 +5,7 @@ import { ArrowRight, ShieldCheck, ExternalLink, Eye, EyeOff } from "lucide-react
 import { useLang } from "@/lib/i18n";
 import { Field, GhostButton, TextInput } from "./ui";
 import { MultiStateButton } from "@/components/motion-ui/multi-state-button";
-import {
-  StaggerReveal,
-  StaggerRevealHeadline,
-  StaggerRevealItem,
-} from "@/components/motion-ui/stagger-reveal";
+import { RevealStagger } from "@/components/RevealStagger";
 
 export type KeyInfo = {
   label?: string | null;
@@ -64,21 +60,15 @@ export function KeyGate({
 
   return (
     <div className="mx-auto grid min-h-[calc(100dvh-3.5rem)] max-w-[1400px] grid-cols-1 items-center gap-10 px-4 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-16">
-      <StaggerReveal className="max-w-[46ch]">
-        <StaggerRevealHeadline
-          as="h1"
-          className="text-4xl font-semibold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl"
-        >
-          {headline}
-        </StaggerRevealHeadline>
-        <StaggerRevealItem as="p" className="mt-5 max-w-[52ch] text-base leading-relaxed text-muted-foreground">
+      <RevealStagger className="max-w-[46ch]" headline={headline}>
+        <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-muted-foreground">
           {t.gate.sub}
-        </StaggerRevealItem>
-        <StaggerRevealItem as="p" className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+        </p>
+        <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
           <ShieldCheck className="h-4 w-4 text-band-auto" aria-hidden />
           {t.footer.pricing}
-        </StaggerRevealItem>
-        <StaggerRevealItem as="p" className="mt-2">
+        </p>
+        <p className="mt-2">
           <a
             href="https://openrouter.ai/keys"
             target="_blank"
@@ -88,8 +78,8 @@ export function KeyGate({
             {t.gate.openrouterLink}
             <ExternalLink className="h-3 w-3" aria-hidden />
           </a>
-        </StaggerRevealItem>
-      </StaggerReveal>
+        </p>
+      </RevealStagger>
 
       <div className="w-full rounded-xl border border-border/70 bg-card p-5 shadow-sm lg:p-6">
         <form
