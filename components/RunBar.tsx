@@ -60,7 +60,11 @@ export function RunBar({
           {label}
         </span>
       </MultiStateButton>
-      {compact ? null : <p className="text-[11px] text-muted-foreground">{t.run.thresholdNote}</p>}
+      {compact ? null : (
+        <p className="text-[11px] text-muted-foreground">
+          {t.run.thresholdNote} {t.run.shortcut}.
+        </p>
+      )}
     </div>
   );
 }

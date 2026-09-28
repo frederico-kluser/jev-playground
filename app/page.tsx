@@ -11,10 +11,12 @@ import {
   type DecisionsResponse,
   type QuestionDraft,
 } from "@/lib/jev";
+import { EXAMPLES, type Draft, type ExampleId } from "@/lib/examples";
 import { maskKey } from "@/lib/metrics";
 import { TopBar } from "@/components/TopBar";
 import { KeyGate, type KeyInfo } from "@/components/KeyGate";
-import { StateEditor, type StateMode } from "@/components/StateEditor";
+import { ExamplesStrip } from "@/components/ExamplesStrip";
+import { StateEditor } from "@/components/StateEditor";
 import { QuestionBuilder } from "@/components/QuestionBuilder";
 import { IssuesPanel } from "@/components/IssuesPanel";
 import { RunBar } from "@/components/RunBar";
@@ -31,56 +33,8 @@ const LS = {
   history: "jp-history",
 } as const;
 
-type Draft = {
-  stateMode: StateMode;
-  stateText: string;
-  questions: QuestionDraft[];
-  model: string;
-  sessionId: string;
-  user: string;
-};
-
 /** Sample triage request so the first Run works out of the box. */
-const SAMPLE: Draft = {
-  stateMode: "text",
-  stateText: "Checkout shows a white screen after clicking Pay.",
-  model: "typesafe/jev-1.13",
-  sessionId: "",
-  user: "",
-  questions: [
-    {
-      id: "is_bug",
-      type: "noul",
-      instructions: "Does the customer report a defect?",
-      criteriaTrue: "Describes broken behaviour",
-      criteriaFalse: "Is a question or a request",
-      options: [],
-      levels: [],
-    },
-    {
-      id: "team",
-      type: "choice",
-      instructions: "Which team should handle it?",
-      criteriaTrue: "",
-      criteriaFalse: "",
-      options: [
-        { key: "frontend", rubric: "Rendering and UI issues" },
-        { key: "payments", rubric: "Checkout and billing" },
-        { key: "other", rubric: "None of the above" },
-      ],
-      levels: [],
-    },
-    {
-      id: "urgency",
-      type: "score",
-      instructions: "How urgent is this?",
-      criteriaTrue: "",
-      criteriaFalse: "",
-      options: [],
-      levels: ["Can wait for the next release", "Should be handled this week", "Blocking revenue right now"],
-    },
-  ],
-};
+const SAMPLE: Draft = EXAMPLES["ticket-triage"];
 
 export default function PlaygroundPage() {
   const { t } = useLang();
@@ -224,7 +178,7 @@ export default function PlaygroundPage() {
           ...prev,
         ].slice(0, 20),
       );
-      notify(t.results.title);
+      notify(t.run.done);
     } catch {
       setError(t.errors.network);
       notify(t.errors.network);
@@ -257,6 +211,32 @@ export default function PlaygroundPage() {
     }));
   }, []);
 
+  const loadExample = useCallback(
+    (id: ExampleId) => {
+      const next = EXAMPLES[id];
+      const dirty = JSON.stringify(draft) !== JSON.stringify(SAMPLE);
+      if (dirty && !window.confirm(t.examples.confirm)) return;
+      setDraft(next);
+      setResult(null);
+      setLatencyMs(null);
+      setError(null);
+      notify(t.examples.loaded);
+    },
+    [draft, notify, t],
+  );
+
+  // Power-user shortcut: Ctrl/Cmd+Enter runs the request from anywhere.
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter" && apiKey && runnable && !running) {
+        event.preventDefault();
+        void run();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [apiKey, runnable, running, run]);
+
   return (
     <div className="flex min-h-[100dvh] flex-col">
       <TopBar apiKey={apiKey} onForget={handleForget} />
@@ -284,7 +264,9 @@ export default function PlaygroundPage() {
             ) : null}
           </div>
 
-          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+          <ExamplesStrip onLoad={loadExample} />
+
+          <div className="mt-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
             <div className="flex flex-col gap-4">
               <StateEditor
                 mode={draft.stateMode}

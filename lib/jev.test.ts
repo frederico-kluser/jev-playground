@@ -140,6 +140,17 @@ describe("validateDrafts", () => {
     expect(rules).toContain("choiceDuplicateOption");
   });
 
+  it("rejects answer keys with characters outside the wire-safe set", () => {
+    const issues = validateDrafts({
+      stateText: "s",
+      stateMode: "text",
+      questions: [draft({ id: "bad id!", type: "noul" })],
+    });
+    const rules = issues.map((i) => i.rule);
+    expect(rules).toContain("invalidId");
+    expect(isRunnable(issues)).toBe(false);
+  });
+
   it("suggests an exit option and rejects numeric score levels", () => {
     const issues = validateDrafts({
       stateText: "s",

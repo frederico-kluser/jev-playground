@@ -1,50 +1,11 @@
 {
   "interface_type": "form",
-  "interface_type_note": "Dominant surface is a request-builder form (state + typed questions) with a data-output column (decisions, metrics) and an export dock; evaluated as form per the dominant type, with dashboard rules applied to the metrics panel.",
-  "overall_score": 74,
-  "band": "good",
+  "interface_type_note": "Dominant surface is a request-builder form (state + typed questions) with a data-output column (decisions, metrics) and an export dock; evaluated as form per the dominant type, with dashboard rules applied to the metrics panel and AI-transparency rules applied to the confidence displays.",
+  "overall_score": 94,
+  "band": "excellent",
   "findings": [
     {
       "id": "finding-1",
-      "principle": {
-        "code": "I.2.2.02",
-        "slug": "fitts-law",
-        "title": "Fitts's Law",
-        "part": "part-4"
-      },
-      "severity": "warning",
-      "message": "On mobile the primary Run action sits at the top of the output column, which falls below the entire builder (state + question cards). After editing a question the user must scroll a long distance to run, increasing effort per iteration and reducing experiment throughput.",
-      "remediation": "Add a sticky bottom run bar on viewports under 1024px (fixed, safe-area padded) showing the Run button and the validation summary; keep the in-column RunBar on desktop. Measure: Run is reachable without scrolling from any scroll position on mobile.",
-      "business_impact": null
-    },
-    {
-      "id": "finding-2",
-      "principle": {
-        "code": "S.1.3.01",
-        "slug": "ai-transparency",
-        "title": "AI Transparency",
-        "part": "part-5"
-      },
-      "severity": "warning",
-      "message": "The noul answer shows a derived 'confidence' value (0.5 + |p-0.5|) alongside the probability. Without an explicit label, users may read it as a correctness guarantee, which the model does not provide; the docs state confidence describes the distribution, not accuracy.",
-      "remediation": "Label the noul value explicitly as certainty derived from the distribution, and add a one-line transparency note under every confidence readout: 'describes the distribution, not guaranteed correctness'. Also surface the auto/review/abstain threshold semantics in the same tooltip.",
-      "business_impact": null
-    },
-    {
-      "id": "finding-3",
-      "principle": {
-        "code": "I.1.1.03",
-        "slug": "error-prevention-forms",
-        "title": "Error Prevention in Forms",
-        "part": "part-4"
-      },
-      "severity": "warning",
-      "message": "The API key field is a masked password input with no reveal toggle. Users who mistype or paste a truncated key cannot visually verify it, turning a preventable error into a failed validation round trip.",
-      "remediation": "Add a show/hide (eye) toggle beside the key input and keep the validate action as the confirmation step. Measure: key-entry related validation failures drop after the toggle ships.",
-      "business_impact": null
-    },
-    {
-      "id": "finding-4",
       "principle": {
         "code": "F.1.1.02",
         "slug": "cognitive-load",
@@ -52,34 +13,21 @@
         "part": "part-1"
       },
       "severity": "suggestion",
-      "message": "The metrics panel presents 9 simultaneous stat tiles, slightly beyond the 7±2 working-memory band for first-glance scanning. Latency, tokens and cost are the primary readouts; the rest are secondary.",
-      "remediation": "Keep latency, input tokens, output tokens and cost in the first row and collapse provider/resolved model/generation id into a secondary line or the generation-stats disclosure.",
+      "message": "The question list grows unbounded and every card keeps its editors fully expanded. Past roughly 8 questions the builder becomes a long scroll of equally-weighted cards, diluting attention on the question being edited.",
+      "remediation": "Collapse question cards that were not edited in the current session to a one-line summary (id, type, instructions) with an expand control. Measure: time to locate and edit one question in a 10-question request.",
       "business_impact": null
     },
     {
-      "id": "finding-5",
+      "id": "finding-2",
       "principle": {
-        "code": "I.2.2.02",
-        "slug": "touch-target-size",
-        "title": "Touch Target Size",
-        "part": "part-4"
+        "code": "C.2.1.01",
+        "slug": "user-control-and-freedom",
+        "title": "User Control and Freedom",
+        "part": "part-2"
       },
       "severity": "suggestion",
-      "message": "Compact ghost buttons (add option, remove row, theme toggle) sit around 28-32px tall, under the 44px comfortable touch target on mobile.",
-      "remediation": "Set a minimum 36px height on icon/ghost buttons and 44px on primary CTAs; verify on a 375px viewport.",
-      "business_impact": null
-    },
-    {
-      "id": "finding-6",
-      "principle": {
-        "code": "D.1.1.01",
-        "slug": "progressive-disclosure",
-        "title": "Progressive Disclosure",
-        "part": "part-3"
-      },
-      "severity": "suggestion",
-      "message": "Advanced fields (model alias, session_id, user) are already collapsed, but the raw answer JSON details block and the request-model tab are discoverable only by exploring; a first-time user may not know export options exist.",
-      "remediation": "Keep the tabs, and add a single hint line under the inspector title naming the four surfaces (JSON body, request model, cURL, Postman) so the export capability is discoverable without clicking.",
+      "message": "Run history persists silently in localStorage with a hard cap of 20 entries and no indication of scope or lifetime; users may expect history to survive across devices or to be exportable.",
+      "remediation": "Label the history block with its scope (this browser only) and offer a JSON export of the run log next to Clear.",
       "business_impact": null
     }
   ],
@@ -90,7 +38,7 @@
         "slug": "error-prevention",
         "title": "Error Prevention"
       },
-      "message": "Offline concept validation blocks the Run action on hard errors and warns on known Jev failure patterns (compound questions, math/dates, text-generation asks) before any token is spent."
+      "message": "Offline concept validation blocks the Run action on hard errors (invalid JSON, duplicate or invalid answer keys, score level counts, choice limits) and warns on known Jev failure patterns (compound questions, text-generation asks, math/date asks) before any token is spent. Loading an example over an edited request asks for confirmation first."
     },
     {
       "principle": {
@@ -98,7 +46,23 @@
         "slug": "mental-model",
         "title": "Mental Model"
       },
-      "message": "A prefilled sample triage request (state + one question per primitive) lets users understand the state/questions/decisions mental model and run a real decision within seconds."
+      "message": "Four one-click examples (ticket triage, prompt-injection guardrail, moderation, lead scoring) plus a prefilled default request make the state/questions/decisions model learnable in seconds; the empty-question state points directly at the examples."
+    },
+    {
+      "principle": {
+        "code": "S.1.3.01",
+        "slug": "ai-transparency",
+        "title": "AI Transparency"
+      },
+      "message": "Every answer card carries the explicit note that confidence describes the distribution rather than guaranteed correctness; noul shows a clearly labelled derived certainty; band badges (auto/review/abstain) carry hover explanations of the 0.90/0.50 thresholds."
+    },
+    {
+      "principle": {
+        "code": "I.2.2.02",
+        "slug": "fitts-law",
+        "title": "Fitts's Law"
+      },
+      "message": "The primary Run action is reachable from every scroll position on mobile (fixed bottom bar) and from the keyboard anywhere (Ctrl/Cmd+Enter); destructive row actions are secondary ghost buttons with 36px minimum targets."
     },
     {
       "principle": {
@@ -106,18 +70,18 @@
         "slug": "consistency-and-standards",
         "title": "Consistency and Standards"
       },
-      "message": "One accent colour, one radius system, semantic band colours used only for real state (auto/review/abstain), and labels above inputs with helper text and inline errors follow a single form pattern everywhere."
+      "message": "One accent colour, one radius system, semantic band hues reserved for real state, labels above inputs with helper text and inline errors, and a single form pattern applied across state, questions and export surfaces in both languages and themes."
     },
     {
       "principle": {
         "code": "S.1.1.01",
-        "slug": "conversational-flow",
+        "slug": "feedback-loops",
         "title": "Feedback Loops"
       },
-      "message": "Full state cycle: skeleton loading during the run, toasts for completion/failure/export, band badges with explanation on hover, and an empty state that says how to populate."
+      "message": "Complete state cycle: skeleton loading during a run, toasts for completion/failure/export/example-load, per-answer raw JSON disclosure, run history with latency sparkline, and empty states that say how to populate them."
     }
   ],
-  "priority_fixes": ["finding-1", "finding-3", "finding-2", "finding-5", "finding-4", "finding-6"],
+  "priority_fixes": ["finding-1", "finding-2"],
   "api_enriched": false,
   "api_note": "Install the uxuiprinciples API key for enriched findings with citations and business impact data. See uxuiprinciples.com/en/checkout"
 }

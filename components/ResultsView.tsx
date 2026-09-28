@@ -138,7 +138,7 @@ function AnswerCard({ id, answer }: { id: string; answer: WireAnswer }) {
         </div>
 
         <details className="group">
-          <summary className="cursor-pointer text-[11px] text-muted-foreground transition-colors hover:text-foreground">
+          <summary className="inline-flex min-h-[32px] cursor-pointer items-center text-[11px] text-muted-foreground transition-colors hover:text-foreground">
             {t.results.rawAnswer}
           </summary>
           <pre className="mt-2 overflow-auto rounded-lg border border-border/50 bg-card/60 px-3 py-2 font-mono text-[11px] leading-relaxed">

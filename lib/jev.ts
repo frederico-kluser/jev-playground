@@ -241,6 +241,9 @@ export function validateDrafts(input: {
     if (q.id.trim() && seenIds.has(q.id.trim())) {
       issues.push({ level: "error", questionId: id, rule: "duplicateId", params: { id: q.id.trim() } });
     }
+    if (q.id.trim() && !/^[A-Za-z0-9_.-]+$/.test(q.id.trim())) {
+      issues.push({ level: "error", questionId: id, rule: "invalidId", params: { id: q.id.trim() } });
+    }
     seenIds.add(id);
 
     if (!q.instructions.trim()) {

@@ -73,6 +73,73 @@ Response: `answers` (typed per question: `noul` carries only the probability; `c
 
 **Pricing**: output is free; input is US$ 0.042 per million tokens. A 3-question decision around 500 input tokens costs about US$ 0.00002.
 
+## Examples
+
+The playground ships with four one-click examples: **ticket triage**, **prompt-injection guardrail**, **content moderation** and **lead scoring**. Example content is in English (Jev is most accurate there); the UI itself stays in your language.
+
+Minimal request:
+
+```json
+{
+  "model": "typesafe/jev-1.13",
+  "state": "Checkout shows a white screen after clicking Pay.",
+  "questions": {
+    "is_bug": {
+      "type": "noul",
+      "instructions": "Does the customer report a defect?",
+      "criteria": { "true": "Describes broken behaviour", "false": "Is a question or a request" }
+    },
+    "team": {
+      "type": "choice",
+      "instructions": "Which team should handle it?",
+      "criteria": {
+        "frontend": "Rendering and UI issues",
+        "payments": "Checkout and billing",
+        "other": "None of the above"
+      }
+    },
+    "urgency": {
+      "type": "score",
+      "instructions": "How urgent is this?",
+      "criteria": ["Can wait for the next release", "Should be handled this week", "Blocking revenue right now"]
+    }
+  }
+}
+```
+
+Real response (captured from a live run):
+
+```json
+{
+  "model": "typesafe/jev-1.13-20260917",
+  "answers": {
+    "is_bug": { "type": "noul", "noul": 0.97 },
+    "team": {
+      "type": "choice",
+      "choice": "payments",
+      "probabilities": { "frontend": 0.34, "payments": 0.66, "other": 0 },
+      "confidence": 0.49
+    },
+    "urgency": {
+      "type": "score",
+      "score": 2,
+      "legend": {
+        "0": "Can wait for the next release",
+        "1": "Should be handled this week",
+        "2": "Blocking revenue right now"
+      },
+      "probabilities": { "0": 0, "1": 0, "2": 1 },
+      "confidence": 0.99
+    }
+  },
+  "id": "gen-dec-…",
+  "provider": "TypeSafe",
+  "usage": { "input_tokens": 424, "output_tokens": 70, "cost": 0.000017808 }
+}
+```
+
+Reading it: `is_bug` lands in the **auto** band (certainty 0.97), `urgency` too (confidence 0.99), while `team` falls in **abstain** (confidence 0.49 on a 0.66/0.34 split) and should escalate to a human or a deeper model. Round trip was about 350 ms end to end.
+
 ## Notes and limits
 
 - Jev never generates text. Ask discrete, enumerable questions; keep math, counting and dates in code.
