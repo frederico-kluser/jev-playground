@@ -40,7 +40,7 @@ This is a standard Next.js app with same-origin route handlers, so it deploys to
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/frederico-kluser/jev-playground)
 
-Or from the CLI: `npx vercel --prod`. No environment variables are required.
+Or from the CLI: `npx vercel --prod`. No environment variables are required: the build depends only on public npm packages (no private registry tokens), so the Deploy button works as-is.
 
 ## How it works
 
